@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>用户信息管理</title>
+		<!-- TODO:the place position -->
+		<link href="../css/info.css" rel="stylesheet" />
+	</head>
+	<body background="../images/default.jpg">
+		<a href="login.html">返回登录</a>
+		<a href="register.html">返回注册</a>
+		<a href="index.html">返回首页</a>
+		<a href="room.html">返回空间</a>
+		<br/>
+		<!-- TODO:设置各个div的样式-->
+		<div id="part1Div" >
+			<div id="sec1Div">
+				<h2>用户头像</h2>
+				<p><img src="<%= image %>"  width="30%" height="40%" alt="用户头像" /></p>
+				<p>用户昵称<%= name %></p>
+			</div>
+			<div id="sec2Div">
+				<h2>信息管理</h2>
+				<p>密码：<%= password %> 邮箱：<%= email %></p>
+				<p>手机：<%= mobile %> 爱好：<%= hobby %></p>
+				<p><br/></p>
+				<p><br/></p>
+				<p><br/></p>
+			</div>
+		</div>
+		<hr/>
+		<div id="part2Div">
+			<div id="sec3Div">
+				<h2>好友列表，应该有上下滚动按钮</h2>
+				<!-- TODO：最好能显示一副小的头像 -->
+				<ul>
+					<% for(var i=0; i<friends.length; i++) { %>
+					<li> <%= friends[i] %> </li>
+					<% } %>
+				</ul>
+			</div>
+			<!-- TODO:下面的功能最好能用前端js来弹框提示，需要用submit()或者ajax与后台交互 -->
+			<div id="sec4Div">
+				<h2>基本功能</h2>
+				<form id="nameForm" action="/addByName" method="POST" enctype="multipart/form-data">
+					<span class="s">通过用户名添加好友：</span>
+					<input type="text" name="name" placeholder="请输入要查找的用户名" />
+					<input id="submit" type="submit" value="添加好友" />
+				</form>
+				<br/>
+				<form id="mobileForm" action="/addByPhone" method="POST" enctype="multipart/form-data">
+					<span class="s">通过手机号添加好友：</span>
+					<input type="text" name="mobile" placeholder="请输入要查找的手机号" />
+					<input id="submit" type="submit" value="添加好友" />
+				</form>
+				<br/>
+				<form id="emailForm" action="/addByEmail" method="POST" enctype="multipart/form-data">
+					<span class="s">通过邮箱添加好友：</span>
+					<input type="text" name="email" placeholder="请输入要查找的邮箱" />
+					<input id="submit" type="submit" value="添加好友" />
+				</form>			
+			</div>
+		
+			<div id="sec5Div">
+				<h2>高级功能</h2>
+				<form id="hobbyForm" action="/addByHobby" method="POST" enctype="multipart/form-data">
+					<span class="s">通过爱好添加好友：</span>
+					<input type="text" name="hobby" placeholder="请输入要查找的爱好" />
+					<input id="submit" type="submit" value="添加好友" />
+				</form>
+				<br/>
+				<form id="hobby2Form" action="/addByHobby2" method="POST" enctype="multipart/form-data">
+					<span class="s">通过朋友的朋友的爱好添加好友：</span>
+					<input type="text" name="hobby2" placeholder="请输入要查找的爱好" />
+					<input id="submit" type="submit" value="添加好友" />
+				</form>
+				<br/>
+				<form id="removeForm" action="/subByName" method="POST" enctype="multipart/form-data">
+					<span class="s">通过用户名删除好友：</span>
+					<input type="text" name="name" placeholder="请输入要删除的用户名" />
+					<input id="submit" type="submit" value="删除好友" />
+				</form>
+			</div>	
+		</div>
+		
+		<script type="text/javascript" src="../js/info.js"></script>
+	</body>
+
+</html>
