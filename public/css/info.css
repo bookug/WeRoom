@@ -51,6 +51,8 @@
 	margin-bottom:2%;*/
 	float: left;
 	font-family: "微软雅黑";
+	overflow:auto;
+	overflow-x: hidden;
 }
 
 #sec4Div {

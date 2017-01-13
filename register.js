@@ -1,8 +1,10 @@
 var neo4j = require("neo4j-driver").v1;
 var fs = require("fs");
+var path = require("path");
 
 var htmld = __dirname + "/public/html/";
 var imgd = "../images/";
+var store = __dirname + "/public/images/";
 
 function Register() {  
 	this.userRegister = function(req, res) { 
@@ -36,7 +38,9 @@ function Register() {
 	*/
 	console.log("image file: " + req.files[0]);
 	imageFile = imgd + req.files[0].originalname;
+	storeFile = store + req.files[0].originalname;
 	console.log("image path: " + imageFile);
+	console.log("file path: " + storeFile);
 	
 	session
 		.run("MATCH (olduser:Person {name: {nameParam} }) RETURN olduser.password", {nameParam:name})
@@ -58,8 +62,10 @@ function Register() {
 			}
 			else {
 	//WARN:if need to use sync here?
+	console.log("request files: " + req.files[0]);
+	console.log("original file path: " + req.files[0].path);
 	fs.readFile( req.files[0].path, function (err, data) {
-        fs.writeFile(imageFile, data, function (err) {
+        fs.writeFile(storeFile, data, function (err) {
          if( err ){
               console.log( err );
          }
@@ -89,14 +95,14 @@ function Register() {
 		.catch(function(error) {
 			console.log(error);
 			console.log(name);
-	//WARN:if need to use sync here?
-	fs.readFile( req.files[0].path, function (err, data) {
-        fs.writeFile(imageFile, data, function (err) {
-         if( err ){
-              console.log( err );
-         }
-		});
-   });
+			//WARN:if need to use sync here?
+			fs.readFile( req.files[0].path, function (err, data) {
+			fs.writeFile(storeFile, data, function (err) {
+			if( err ){
+				console.log( err );
+			}
+			});
+			});
 			session
 				.run("CREATE (newuser:Person {name:{nameParam}, password:{passwordParam}, mailbox:{mailboxParam}, phone:{phoneParam}, hobby:{hobbyParam}, image:{imageParam}})", {nameParam:name, passwordParam:password, mailboxParam:mailbox, phoneParam:phone, hobbyParam:hobby, imageParam:imageFile})
 				.then(function(result) {

@@ -10,6 +10,7 @@ var path = require("path");
 var ejs = require("ejs");
 app.set("view engine", "ejs");
 app.set("views", __dirname + "/views");
+app.set('view option',{layout:false});
 
 var Login = require("./login");
 login = new Login();
@@ -41,6 +42,13 @@ app.get('/', function (req, res) {
 	console.log("Cookies: ", req.cookies)
 })
 
+app.get('/index.html', function (req, res) {
+   res.sendFile( htmld + "index.html" );
+   //res.sendFile( cssd + "index.css");
+   //res.sendFile( jsd + "index.js");
+	console.log("Cookies: ", req.cookies)
+})
+
 app.get('/login.html', function (req, res) {
    res.sendFile( htmld + "login.html" );
 })
@@ -51,6 +59,7 @@ app.get('/register.html', function (req, res) {
 
 app.post('/login', function (req, res) {
 	console.log("login post");
+	console.log(req.body);
 	login.userLogin(req, res);
 	//res.end(login.userLogin(req));
 })
@@ -59,6 +68,18 @@ app.post('/register', function (req, res) {
 	console.log("register post");
     register.userRegister(req, res);
 	//res.end(register.userRegister(req));
+})
+
+app.get('/info.html', function (req, res) {
+   //res.sendFile( htmld + "info.html" );
+	if(req.cookies.length == 0 || req.cookies.name == "")
+	{
+		console.log("please login first");
+		res.sendFile(htmld + "login.html");
+	}
+	else{
+		info.show(req, res, req.cookies.name);
+	}
 })
 
 app.post('/addByName', function (req, res) {
@@ -92,7 +113,37 @@ app.post('/subByName', function (req, res) {
 })
 
 app.get('/room.html', function (req, res) {
-   res.sendFile( htmld + "room.html" );
+   //res.sendFile( htmld + "room.html" );
+	if(req.cookies.length == 0 || req.cookies.name == "")
+	{
+		console.log("please login first");
+		res.sendFile(htmld + "login.html");
+	}
+	else{
+		res.sendFile(htmld + "room.html");
+		//room.show(req, res, req.cookies.name);
+	}
+})
+
+//return the data using in this page to ajax
+app.get('/room', function (req, res) {
+	console.log("to display the room");
+	room.show(req, res, req.cookies.name);
+})
+
+app.get('/reply', function (req, res) {
+	console.log("get a reply");
+	room.reply(req, res, req.cookies.name);
+})
+
+app.get('/praise', function (req, res) {
+	console.log("get a praise");
+	room.praise(req, res, req.cookies.name);
+})
+
+app.get('message', function (req, res) {
+	console.log("get a message");
+	room.message(req, res, req.cookies.name);
 })
 
 //==========================================================================================================================================
