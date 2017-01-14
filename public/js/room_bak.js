@@ -5,33 +5,8 @@
 var list ;
 var boxs ;
 var timer;
-var image = '../images/32f1bbd052aa269094cfc443e51b7b91.jpg';
-var statetextsend="写写你的心情吧...";
-var username="bookug";
-
-var httpRequest;
-function handleResponse()
-{
-	if(httpRequest.readyState == 4 && httpRequest.status == 200){
-		//if(httpRequest.responseText=="OK")
-		//	console.log("OK");
-		console.log(httpRequest.responseText);
-		str = JSON.parse(httpRequest.responseText);
-		console.log(str.success);
-	}
-}
-function RequestToServer(formData,type)
-{
-
-	httpRequest = new XMLHttpRequest();
-	httpRequest.onreadystatechange = handleResponse;
-	httpRequest.open("POST",type,true);
-
-	httpRequest.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
-	//httpRequest.setRequestHeader('Content-Type','application/json;charset=utf-8');
-	
-	httpRequest.send(formData);
-}
+var image = '';
+var t;
 function Loadpic(file)
 {
     if (!file.files || !file.files[0]) {
@@ -44,37 +19,28 @@ function Loadpic(file)
     }
         reader.readAsDataURL(file.files[0]);
 }
-
 function SendState()
 {
-	statetextsend=document.getElementsByClassName('stateText')[0].value;
+	t=document.getElementsByClassName('stateText')[0].value;
 	//这里的t就是用户输入的内容
-	img=image;
-	timestamp=formateDate(new Date());
-	addNode(username,statetextsend,img,timestamp);
+	 //alert(t);  //用于测试而已，正式的时候删掉
 	//用户上传的图片在image中
-	
-	//var formData="image="+image+"&name="+username+"&text="+statetextsend+"&time="+timestamp;
-	var formData="name="+username+"&text="+statetextsend+"&time="+timestamp;
-	type="http://127.0.0.1:8888/addMessage";
-	RequestToServer(formData,type);
 }
-function addNode(user,statetext,imgURL,timestamp)
-	{	
+function addNode()
+	{
 		var stateList = document.getElementsByClassName('stateList')[0];
 		var stateBox = document.createElement('div');
 		stateBox.className="box clearfix";
 		stateBox.innerHTML=
 		'<a class="close" href="javascript:;">×</a>'+
-            '<img class="head" src="../images/8.jpg" alt=""/>'+
+            '<img class="head" src="images/8.jpg" alt=""/>'+
             '<div class="content">'+
                 '<div class="main">'+
                     '<p class="txt">'+
-                        '<span class="user">'+user+'：</span>'+statetext+'</p>'+
+                        '<span class="user">小Y：</span>'+t+'</p>'+
                 '</div>'+
-				'<img class="pic" src='+imgURL+' alt=""/>'+
                 '<div class="info clearfix">'+
-                    '<span class="time">'+timestamp+'</span>'+
+                    '<span class="time">02-11 13:17</span>'+
                 '</div>'+
                 '<div class="praises-total" total="0" style="display: none;"></div>'+
                 '<div class="comment-list">'+
@@ -225,7 +191,7 @@ function formateDate(date) {
         commentBox.className = 'comment-box clearfix';
         commentBox.setAttribute('user', 'self');
         commentBox.innerHTML =
-            '<img class="myhead" src="../images/my.jpg" alt=""/>' +
+            '<img class="myhead" src="images/my.jpg" alt=""/>' +
                 '<div class="comment-content">' +
                 '<p class="comment-text"><span class="user">我：</span>' + textarea.value + '</p>' +
                 '<p class="comment-time">' +
@@ -259,13 +225,8 @@ function formateDate(date) {
     }
 	
 window.onload = function () {
-	console.log("befor eonload");
-	//console.log("cookie: "+document.cookie.split("=")[1]);
-	username = document.cookie.split("=")[1];
 	list = document.getElementById('list');
-	//TODO:set username according to cookies
     boxs = list.children;
-	console.log("before listen");
 	listenToEnvent();
 }
 

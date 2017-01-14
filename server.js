@@ -1,5 +1,25 @@
 var express = require('express');
 var app = express();
+//…Ë÷√øÁ”Ú∑√Œ 
+app.all('*', function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    //res.header("Access-Control-Allow-Headers", "X-Requested-With");
+     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");  
+	//res.header("Access-Control-Allow-Headers", "Content-Type");
+	res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
+    res.header("X-Powered-By",' 3.2.1');
+    //res.header("Content-Type", "application/json;charset=utf-8");
+	//res.header("Content-Type", "application/x-www-form-urlencoded");
+
+    next();
+});
+/*
+	"Access-Control-Allow-Header":"Content-Type",
+	"Access-Control-Allow-Methods":"*",
+	"Access-Control-Allow-Origin":"*"
+*/
+  
+
 var fs = require("fs");
 var multer = require("multer");
 var bodyParser = require('body-parser');
@@ -114,8 +134,10 @@ app.post('/subByName', function (req, res) {
 
 app.get('/room.html', function (req, res) {
    //res.sendFile( htmld + "room.html" );
-	if(req.cookies.length == 0 || req.cookies.name == "")
-	{
+   //NOTICE:no length for cookies
+   console.log("req method: " + req.method);
+   console.log("req url: "+req.url);
+	if(req.cookies.name == "") {
 		console.log("please login first");
 		res.sendFile(htmld + "login.html");
 	}
@@ -126,24 +148,35 @@ app.get('/room.html', function (req, res) {
 })
 
 //return the data using in this page to ajax
-app.get('/room', function (req, res) {
-	console.log("to display the room");
-	room.show(req, res, req.cookies.name);
+app.post('/showMessage', function (req, res) {
+	console.log("to display the messages related with a user");
+	room.showMessage(req, res);
 })
 
-app.get('/reply', function (req, res) {
+app.post('/showReply', function (req, res) {
+	console.log("to display the reply of a message");
+	room.showReply(req, res);
+})
+
+app.post('/showPraise', function (req, res) {
+	console.log("to display the praise of a message");
+	room.showPraise(req, res);
+})
+
+app.post('/addReply', function (req, res) {
 	console.log("get a reply");
-	room.reply(req, res, req.cookies.name);
+	room.addReply(req, res);
 })
 
-app.get('/praise', function (req, res) {
+app.post('/addPraise', function (req, res) {
 	console.log("get a praise");
-	room.praise(req, res, req.cookies.name);
+	room.addPraise(req, res);
 })
 
-app.get('message', function (req, res) {
+app.post('/addMessage', function (req, res) {
 	console.log("get a message");
-	room.message(req, res, req.cookies.name);
+	//console.log(req.body);
+	room.addMessage(req, res);
 })
 
 //==========================================================================================================================================
