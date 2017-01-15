@@ -19,11 +19,12 @@ function Room() {
 		name = req.body.name;
 		msgs = [];
 		session
-		.run("MATCH (user1:Person {name:{arg1}})-[:SEND]->(m1:Message) RETURN m1.name AS mname, m1.text AS mtext, m1.image AS mimage  UNION  MATCH (user1:Person {name:{arg1}})-[:FRIEND]->(user2:Person)-[:SEND]->(m2:Message) RETURN m2.name AS mname, m2.text AS mtext, m2.image AS mimage", {arg1:name})
+		.run("MATCH (user1:Person {name:{arg1}})-[:SEND]->(m1:Message) RETURN user1.image AS photo, m1.name AS mname, m1.text AS mtext, m1.image AS mimage  UNION  MATCH (user1:Person {name:{arg1}})-[:FRIEND]->(user2:Person)-[:SEND]->(m2:Message) RETURN user1.image AS photo, m2.name AS mname, m2.text AS mtext, m2.image AS mimage", {arg1:name})
 		.then(function(result) {
 			result.records.forEach(function(record) {
 				//console.log("record: " + record);
 				mname = record.get("mname"); mtext = record.get("mtext"); mimage = record.get("mimage");
+				photo = record.get("photo");
 				/*
 				pname = record.get("pname"); rname = record.get("rname"); rtext = record.get("rtext");
 				if(msgs.mname == undefined) {
@@ -32,22 +33,22 @@ function Room() {
 				dict = {'name':mname, 'text':mtext, 'image':mimage};
 				msgs.push(dict);
 			});
-			console.log("all related messages: " + msgs);
-			succ = {'success':'yes'};
-			res.write(JSON.stringify(succ)); res.write(JSON.stringify(msgs)); res.end();
+			console.log("all related messages: " + msgs); console.log(photo);
+			ret = {'success':'yes', 'value':{'message':msgs, 'photo':photo}};
+			res.write(JSON.stringify(ret)); res.end();
 			session.close();
 			driver.close();
 		})
 		.catch(function(error) {
 			console.log(error);
 			console.log("error when trying to get all msgs: " + name);
-			fail = {'success':'no'};
-			res.write(JSON.stringify(fail)); res.end();
+			ret = {'success':'no', 'value':{}};
+			res.write(JSON.stringify(ret)); res.end();
 			session.close();
 			driver.close();
 		});			
 	}
-	
+/*	
 	this.showPraise = function(req, res) {
 		var driver = neo4j.driver("bolt://localhost", neo4j.auth.basic("neo4j", "8438153naruto"));
 		var session = driver.session();
@@ -58,29 +59,28 @@ function Room() {
 		.then(function(result) {
 			result.records.forEach(function(record) {
 				//console.log("record: " + record);
-				/*
-				pname = record.get("pname");
-				dict = {'name':pname};
-				praises.push(dict);
-				*/
+				//pname = record.get("pname");
+				//dict = {'name':pname};
+				//praises.push(dict);
 				num = record.get("num");
 			});
 			console.log("all related praises: " + praises);
 			//res.send(praises);
-			succ = {'success':'yes'}; ret = {'praise_num':num};
-			res.write(JSON.stringify(succ)); res.write(JSON.stringify(ret)); res.end();
+			ret = {'success':'yes', 'value':num}; 
+			res.write(JSON.stringify(ret)); res.end();
 			session.close();
 			driver.close();
 		})
 		.catch(function(error) {
 			console.log(error);
 			console.log("error when trying to get praises: " + name);
-			fail = {'success':'no'};
-			res.write(JSON.stringify(fail)); res.end();
+			ret = {'success':'no', 'value':-1};
+			res.write(JSON.stringify(ret)); res.end();
 			session.close();
 			driver.close();
 		});			
 	}
+	*/
 	
 	this.showReply = function(req, res) {
 		var driver = neo4j.driver("bolt://localhost", neo4j.auth.basic("neo4j", "8438153naruto"));
@@ -96,17 +96,35 @@ function Room() {
 				dict = {'name':rname, 'text':rtext};
 				replies.push(dict);
 			});
-			console.log("all related replies: " + replies);
-			succ = {'success':'yes'};
-			res.write(JSON.stringify(succ)); res.write(JSON.stringify(replies)); res.end();
-			session.close();
-			driver.close();
+			console.log("all related replies: " + replies);			
+			session
+			.run("MATCH (m:Message {name:{arg1}})-[:HAVE]->(p:Praise) RETURN COUNT(*) AS num", {arg1:name})
+			.then(function(result) {
+				result.records.forEach(function(record) {
+					num = record.get("num").low;
+				});
+				console.log("num: "+JSON.stringify(num));
+				ret = {'success':'yes', 'value':{'praise':num, 'reply':replies}}; 
+				console.log("ret: "+ret);
+				console.log("num: "+ret.value.praise);
+				res.write(JSON.stringify(ret)); res.end();
+				session.close();
+				driver.close();
+			})
+			.catch(function(error) {
+				console.log(error);
+				console.log("error when trying to get praises: " + name);
+				ret = {'success':'no', 'value':-1};
+				res.write(JSON.stringify(ret)); res.end();
+				session.close();
+				driver.close();
+			});				
 		})
 		.catch(function(error) {
 			console.log(error);
 			console.log("error when trying to get replies: " + name);
-			fail = {'success':'no'};
-			res.write(JSON.stringify(fail)); res.end();
+			ret = {'success':'no', 'value':{}};
+			res.write(JSON.stringify(ret)); res.end();
 			session.close();
 			driver.close();
 		});			
@@ -118,13 +136,15 @@ function Room() {
 		name = req.body.name;
 		time = req.body.time;
 		text = req.body.text;
+		console.log(name2);console.log(name);console.log(time);console.log(text);
 		if(name == undefined || name2 == undefined || time == undefined || text == undefined)
 		{
-			fail = {'success':'no'};
-			res.write(JSON.stringify(fail)); res.end();
+			ret = {'success':'no', 'value':[]};
+			res.write(JSON.stringify(ret)); res.end();
 			return;
 		}
 		id = name + ";" + time;
+		console.log("reply: "+id+" "+text);
 		var driver = neo4j.driver("bolt://localhost", neo4j.auth.basic("neo4j", "8438153naruto"));
 		var session = driver.session();
 		session
@@ -133,15 +153,15 @@ function Room() {
 			result.records.forEach(function(record) {
 				//console.log("record: " + record);
 			});
-			succ = {'success':'yes'};
-			res.write(JSON.stringify(succ)); res.end();
+			ret = {'success':'yes', 'value':[]};
+			res.write(JSON.stringify(ret)); res.end();
 			session.close();
 			driver.close();
 		})
 		.catch(function(error) {
 			console.log(error);
-			fail = {'success':'no'};
-			res.write(JSON.stringify(fail)); res.end();
+			ret = {'success':'no', 'value':[]};
+			res.write(JSON.stringify(ret)); res.end();
 			session.close();
 			driver.close();
 		});		
@@ -152,13 +172,16 @@ function Room() {
 		name = req.body.name;
 		time = req.body.time;
 		name2 = req.body.message_name;
+		console.log(name+" "+time+" "+name2);
 		if(name == undefined || name2 == undefined || time == undefined)
 		{
-			fail = {'success':'no'};
-			res.write(JSON.stringify(fail)); res.end();
+			console.log("error1");
+			ret = {'success':'no', 'value':[]};
+			res.write(JSON.stringify(ret)); res.end();
 			return;
 		}
 		id = name + ";" + time;
+		console.log("id="+id);
 		var driver = neo4j.driver("bolt://localhost", neo4j.auth.basic("neo4j", "8438153naruto"));
 		var session = driver.session();
 		session
@@ -167,14 +190,16 @@ function Room() {
 			result.records.forEach(function(record) {
 				//console.log("record: " + record);
 			});
-			succ = {'success':'yes'};
-			res.write(JSON.stringify(succ)); res.end();
+			ret = {'success':'yes', 'value':[]};
+			res.write(JSON.stringify(ret)); res.end();
 			session.close();
 			driver.close();
 		})
 		.catch(function(error) {
 			console.log(error);
 			//res.send();
+			ret = {'success':'no', 'value':[]};
+			res.write(JSON.stringify(ret)); res.end();
 			session.close();
 			driver.close();
 		});	
@@ -216,8 +241,8 @@ function Room() {
 		console.log(time+"   "+text + "   "+image);
 		if(name == undefined || time == undefined || text == undefined || image == undefined)
 		{
-			fail = {'success':'no'};
-			res.write(JSON.stringify(fail)); res.end();
+			ret = {'success':'no', 'value':[]};
+			res.write(JSON.stringify(ret)); res.end();
 			console.log("invalid args");
 			return;
 		}
@@ -230,15 +255,15 @@ function Room() {
 			result.records.forEach(function(record) {
 				//console.log("record: " + record);
 			});
-			succ = {'success':'yes'};
-			res.write(JSON.stringify(succ)); res.end();
+			ret = {'success':'yes', 'value':[]};
+			res.write(JSON.stringify(ret)); res.end();
 			session.close();
 			driver.close();
 		})
 		.catch(function(error) {
 			console.log(error);
-			fail = {'success':'no'};
-			res.write(JSON.stringify(fail)); res.end();
+			ret = {'success':'no', 'value':[]};
+			res.write(JSON.stringify(ret)); res.end();
 			session.close();
 			driver.close();
 		});	

@@ -149,19 +149,21 @@ app.get('/room.html', function (req, res) {
 
 //return the data using in this page to ajax
 app.post('/showMessage', function (req, res) {
-	console.log("to display the messages related with a user");
+	console.log("to display the messages and photo related with a user");
 	room.showMessage(req, res);
 })
 
 app.post('/showReply', function (req, res) {
-	console.log("to display the reply of a message");
+	console.log("to display the reply and praise num of a message");
 	room.showReply(req, res);
 })
 
+/*
 app.post('/showPraise', function (req, res) {
 	console.log("to display the praise of a message");
 	room.showPraise(req, res);
 })
+*/
 
 app.post('/addReply', function (req, res) {
 	console.log("get a reply");

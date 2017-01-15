@@ -207,15 +207,16 @@ function Info() {
 	
 	this.addFriendByHobby2 = function(req, res) {
 		cookie = req.cookies;
-		console.log(cookie);
+		console.log("cookie: "+cookie);
 		name = cookie.name;
-		hobby = req.body.hobby;
-		if(name == "") {
+		hobby = req.body.hobby2;
+		console.log("hobby: "+hobby);
+		if(name == undefined) {
 			console.log("the user cookie is invalid");
 			res.sendFile( htmld + "login.html" );
 			return;
 		}
-		else if(hobby == "") {
+		else if(hobby == undefined) {
 			console.log("the friend's friend's hobby can not be empty");
 			info.show(req, res, name);
 			return;
