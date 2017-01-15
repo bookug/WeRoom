@@ -1,7 +1,5 @@
-/**
- * Created by an.han on 14-2-20.
- * Modified by xiaode on 2017.1.12.
- */
+//TODO:sort on reply maybe needed, maybe on time or praise num
+
 var list ;
 var boxs ;
 var timer;
@@ -17,7 +15,7 @@ function myrefresh()
 { 
 window.location.reload(); 
 } 
-setTimeout('myrefresh()',60000); //指定1秒刷新一次 
+//setTimeout('myrefresh()',60000); //指定1秒刷新一次 
 function handleResponse()
 {
 	console.log("receive response");
@@ -41,6 +39,25 @@ function handleResponse()
 			console.log("photo: "+photo);
 			document.getElementById("image").src = photo;
 			user_photo = photo;
+			
+			/*sort the message according to the time*/
+			str.value.message.sort(function(msg1,msg2){
+				time1=msg1.name.split(";")[1];
+				time2=msg2.name.split(";")[1];
+				
+				time1=time1.replace("-01-","");
+				//time1=time1.replace("-","");
+				time1=time1.replace(":","");
+				time1=time1.replace(" ","");
+				
+				time2=time2.replace("-01-","");
+				//time2=time2.replace("-","");
+				time2=time2.replace(":","");
+				time2=time2.replace(" ","");
+				
+				//console.log(parseInt(time1)-parseInt(time2));
+				return parseInt(time2)-parseInt(time1);
+			});
 			for(i in str.value.message)
 			{
 				S = str.value.message[i];
